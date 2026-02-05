@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AskPOTATO - QA Management{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('home') }}" class="navbar-brand">
+                🥔 AskPOTATO
+            </a>
+            <div class="navbar-links">
+                <a href="{{ url_for('home') }}" {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
+                <a href="{{ url_for('projects') }}" {% if request.endpoint in ['projects', 'scenario_details'] %}class="active"{% endif %}>Projects</a>
+                <a href="{{ url_for('ask') }}" {% if request.endpoint == 'ask' %}class="active"{% endif %}>Ask AI</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {% if category == 'success' %}✓{% elif category == 'error' %}✗{% else %}ℹ{% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary); margin-top: 4rem;">
+        <p>AskPOTATO | AI-Powered QA Management System</p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - AskPOTATO{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Test Scenarios</h2>
+        <p class="card-subtitle">Manage your QA test scenarios and steps</p>
+    </div>
+
+    <!-- Add New Scenario Form -->
+    <details style="margin-bottom: 2rem;">
+        <summary style="font-size: 1.1rem; font-weight: 600; color: var(--primary-color);">
+            ➕ Add New Scenario
+        </summary>
+        
+        <form method="post" style="margin-top: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Scenario Name *</label>
+                    <input type="text" name="name" class="form-input" placeholder="e.g., Login Flow Test" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Area *</label>
+                    <input type="text" name="area" class="form-input" placeholder="e.g., Authentication" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Type *</label>
+                    <input type="text" name="type" class="form-input" placeholder="e.g., Functional" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Assigned To *</label>
+                    <input type="text" name="assigned_to" class="form-input" placeholder="e.g., John Doe" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create Scenario</button>
+        </form>
+    </details>
+</div>
+
+<!-- Scenarios List -->
+<div class="card">
+    <h3 class="card-title">All Scenarios</h3>
+    
+    {% if scenarios %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Scenario Name</th>
+                        <th>Area</th>
+                        <th>Type</th>
+                        <th>Assigned To</th>
+                        <th style="width: 120px;">Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in scenarios %}
+                    <tr>
+                        <td><span class="badge badge-info">{{ s.id }}</span></td>
+                        <td>
+                            <a href="{{ url_for('scenario_details', scenario_id=s.id) }}" style="font-weight: 600; color: var(--primary-color); text-decoration: none;">
+                                {{ s.name }}
+                            </a>
+                        </td>
+                        <td>{{ s.area }}</td>
+                        <td>{{ s.type }}</td>
+                        <td>{{ s.assigned_to }}</td>
+                        <td style="font-size: 0.875rem; color: var(--text-secondary);">
+                            {{ s.created_at[:10] if s.created_at else 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if has_prev %}
+                <a href="{{ url_for('projects', page=page-1) }}">← Previous</a>
+            {% else %}
+                <span class="disabled">← Previous</span>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                    <span class="active">{{ p }}</span>
+                {% else %}
+                    <a href="{{ url_for('projects', page=p) }}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if has_next %}
+                <a href="{{ url_for('projects', page=page+1) }}">Next →</a>
+            {% else %}
+                <span class="disabled">Next →</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">No scenarios yet</div>
+            <p>Create your first test scenario to get started!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

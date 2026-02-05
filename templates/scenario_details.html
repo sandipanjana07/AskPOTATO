@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}{{ scenario.name }} - AskPOTATO{% endblock %}
+
+{% block content %}
+<!-- Scenario Header -->
+<div class="card">
+    <div class="flex-between mb-3">
+        <h2 class="card-title">{{ scenario.name }}</h2>
+        <a href="{{ url_for('projects') }}" class="btn btn-secondary btn-sm">← Back to Projects</a>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+        <div>
+            <div class="text-muted" style="font-size: 0.875rem;">Area</div>
+            <div style="font-weight: 600;">{{ scenario.area }}</div>
+        </div>
+        <div>
+            <div class="text-muted" style="font-size: 0.875rem;">Type</div>
+            <div style="font-weight: 600;">{{ scenario.type }}</div>
+        </div>
+        <div>
+            <div class="text-muted" style="font-size: 0.875rem;">Assigned To</div>
+            <div style="font-weight: 600;">{{ scenario.assigned_to }}</div>
+        </div>
+        <div>
+            <div class="text-muted" style="font-size: 0.875rem;">Created</div>
+            <div style="font-weight: 600;">{{ scenario.created_at[:10] if scenario.created_at else 'N/A' }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Steps Table -->
+<div class="card">
+    <h3 class="card-title">Test Steps</h3>
+    
+    {% if steps %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">#</th>
+                        <th>Step Details</th>
+                        <th style="width: 150px;">Status</th>
+                        <th style="width: 150px;">Assigned To</th>
+                        <th style="width: 100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in steps %}
+                    <tr>
+                        <td><strong>{{ step.step_number }}</strong></td>
+                        
+                        <!-- Step Name with Expandable Details -->
+                        <td>
+                            <details>
+                                <summary>
+                                    <strong>{{ step.step_name }}</strong>
+                                    {% set step_defects = defects_by_step.get(step.step_number, []) %}
+                                    {% set step_proofs = proofs_by_step.get(step.step_number, []) %}
+                                    
+                                    {% if step_defects %}
+                                        <span class="badge badge-error" style="margin-left: 0.5rem;">{{ step_defects|length }} defect(s)</span>
+                                    {% endif %}
+                                    
+                                    {% if step_proofs %}
+                                        <span class="badge badge-success" style="margin-left: 0.5rem;">{{ step_proofs|length }} proof(s)</span>
+                                    {% endif %}
+                                </summary>
+
+                                <div style="margin-top: 1rem;">
+                                    <!-- Defects Section -->
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <h4 style="margin-bottom: 0.75rem;">🐞 Defects</h4>
+                                        
+                                        {% if step_defects %}
+                                            <ul style="list-style: none; padding: 0;">
+                                                {% for defect in step_defects %}
+                                                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); margin-bottom: 0.5rem; border-left: 3px solid {% if defect.status == 'Open' %}var(--error-color){% else %}var(--success-color){% endif %};">
+                                                    <div class="flex-between">
+                                                        <div>
+                                                            <strong>{{ defect.title }}</strong>
+                                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                                Reported by: {{ defect.reported_by or 'Unknown' }}
+                                                            </div>
+                                                        </div>
+                                                        <form method="POST" action="{{ url_for('update_defect') }}" style="display: inline;">
+                                                            <input type="hidden" name="defect_id" value="{{ defect.id }}">
+                                                            <input type="hidden" name="scenario_id" value="{{ scenario.id }}">
+                                                            
+                                                            {% if defect.status == 'Open' %}
+                                                                <input type="hidden" name="status" value="Closed">
+                                                                <button type="submit" class="btn btn-success btn-sm">Close</button>
+                                                            {% else %}
+                                                                <input type="hidden" name="status" value="Open">
+                                                                <button type="submit" class="btn btn-secondary btn-sm">Reopen</button>
+                                                            {% endif %}
+                                                        </form>
+                                                    </div>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p style="color: var(--text-secondary); font-size: 0.9rem;">No defects reported</p>
+                                        {% endif %}
+
+                                        <!-- Add Defect Form -->
+                                        <details style="margin-top: 1rem;">
+                                            <summary style="color: var(--primary-color); cursor: pointer;">+ Add Defect</summary>
+                                            <form method="POST" action="{{ url_for('add_defect') }}" style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: var(--radius-md);">
+                                                <input type="hidden" name="scenario_id" value="{{ scenario.id }}">
+                                                <input type="hidden" name="step_number" value="{{ step.step_number }}">
+                                                
+                                                <div class="form-group">
+                                                    <input type="text" name="title" class="form-input" placeholder="Defect title" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" name="reported_by" class="form-input" placeholder="Reported by">
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm">Add Defect</button>
+                                            </form>
+                                        </details>
+                                    </div>
+
+                                    <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                                    <!-- Proof Section -->
+                                    <div>
+                                        <h4 style="margin-bottom: 0.75rem;">📎 Proof Files</h4>
+                                        
+                                        {% if step_proofs %}
+                                            <ul style="list-style: none; padding: 0;">
+                                                {% for proof in step_proofs %}
+                                                <li style="padding: 0.5rem; background: var(--bg-primary); border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+                                                    <a href="{{ url_for('uploaded_file', filename=proof.filename) }}" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">
+                                                        📄 {{ proof.filename }}
+                                                    </a>
+                                                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 0.5rem;">
+                                                        {{ proof.created_at[:10] if proof.created_at else '' }}
+                                                    </span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p style="color: var(--text-secondary); font-size: 0.9rem;">No proof uploaded</p>
+                                        {% endif %}
+
+                                        <!-- Upload Proof Form -->
+                                        <details style="margin-top: 1rem;">
+                                            <summary style="color: var(--primary-color); cursor: pointer;">+ Upload Proof</summary>
+                                            <form method="POST" action="{{ url_for('add_proof') }}" enctype="multipart/form-data" style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: var(--radius-md);">
+                                                <input type="hidden" name="scenario_id" value="{{ scenario.id }}">
+                                                <input type="hidden" name="step_number" value="{{ step.step_number }}">
+                                                
+                                                <div class="form-group">
+                                                    <input type="file" name="proof" class="form-input" required>
+                                                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                        Allowed: PNG, JPG, PDF, TXT, DOCX (Max 5MB)
+                                                    </p>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                                            </form>
+                                        </details>
+                                    </div>
+                                </div>
+                            </details>
+                        </td>
+
+                        <!-- Update Step Form -->
+                        <td>
+                            <form method="POST" action="{{ url_for('update_step') }}">
+                                <select name="status" class="form-select" style="font-size: 0.875rem;">
+                                    <option value="Not Started" {% if step.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+                                    <option value="In Progress" {% if step.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Passed" {% if step.status == 'Passed' %}selected{% endif %}>Passed</option>
+                                    <option value="Failed" {% if step.status == 'Failed' %}selected{% endif %}>Failed</option>
+                                </select>
+                        </td>
+
+                        <td>
+                                <input type="text" name="assigned_to" class="form-input" value="{{ step.assigned_to or '' }}" placeholder="Assignee" style="font-size: 0.875rem;">
+                        </td>
+
+                        <td>
+                                <input type="hidden" name="scenario_id" value="{{ scenario.id }}">
+                                <input type="hidden" name="step_number" value="{{ step.step_number }}">
+                                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p>No steps found for this scenario</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

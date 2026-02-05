@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AskPOTATO{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Welcome to AskPOTATO 🥔</h1>
+        <p class="card-subtitle">
+            Your AI-powered QA test management assistant. Track scenarios, manage defects, 
+            upload proof, and ask questions in natural language.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="margin-bottom: 1rem;">📋 Manage Projects</h3>
+            <p style="margin-bottom: 1rem; opacity: 0.9;">
+                Create test scenarios, track steps, log defects, and upload evidence.
+            </p>
+            <a href="{{ url_for('projects') }}" class="btn btn-secondary">Go to Projects →</a>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h3 style="margin-bottom: 1rem;">🤖 Ask AI</h3>
+            <p style="margin-bottom: 1rem; opacity: 0.9;">
+                Ask questions about your scenarios, defects, and test status in plain English.
+            </p>
+            <a href="{{ url_for('ask') }}" class="btn btn-secondary">Try AskPOTATO →</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">Features</h2>
+    <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+        <li style="padding: 1rem; margin-bottom: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <strong>✨ Natural Language Queries</strong> - Ask questions like "Which scenario has the most defects?" or "Show me all failed steps"
+        </li>
+        <li style="padding: 1rem; margin-bottom: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <strong>🎯 Smart Test Management</strong> - Organize scenarios, steps, defects, and proof files in one place
+        </li>
+        <li style="padding: 1rem; margin-bottom: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <strong>🔍 AI-Powered Insights</strong> - Get intelligent answers powered by local LLMs (Ollama)
+        </li>
+        <li style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <strong>📎 Evidence Tracking</strong> - Upload and manage proof files for test execution
+        </li>
+    </ul>
+</div>
+
+<!-- Quick Ask Section -->
+<div class="chat-wrapper">
+    <div class="card">
+        <h2 class="card-title">Quick Ask</h2>
+        <p class="card-subtitle mb-2">Try asking something about your test data</p>
+        
+        <form method="post" action="{{ url_for('ask') }}" class="chat-form">
+            <input
+                type="text"
+                name="question"
+                class="form-input"
+                placeholder="e.g., Which scenario has the most defects?"
+                required
+                autofocus
+            >
+            <button type="submit" class="btn btn-primary">Ask 🚀</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

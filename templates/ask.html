@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Ask AI - AskPOTATO{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2 class="card-title" style="font-size: 2rem;">🤖 AskPOTATO</h2>
+            <p class="card-subtitle">
+                Ask questions about your test scenarios, defects, steps, and more in natural language
+            </p>
+        </div>
+
+        <!-- Example Questions -->
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+            <h4 style="margin-bottom: 1rem; color: var(--text-primary);">Try asking:</h4>
+            <ul style="list-style: none; padding: 0; display: grid; gap: 0.5rem;">
+                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                    💬 "List all scenarios"
+                </li>
+                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                    💬 "Which scenario has the most defects?"
+                </li>
+                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                    💬 "Show me all open defects"
+                </li>
+                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                    💬 "What steps have failed?"
+                </li>
+                <li style="padding: 0.75rem; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                    💬 "Which steps are missing proof?"
+                </li>
+            </ul>
+        </div>
+
+        <!-- Question Form -->
+        <form method="post" action="{{ url_for('ask') }}" class="chat-form">
+            <input
+                type="text"
+                name="question"
+                class="form-input"
+                placeholder="Ask anything about your test data..."
+                required
+                autofocus
+                style="font-size: 1.1rem;"
+            >
+            <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                Ask 🚀
+            </button>
+        </form>
+
+        <!-- AI Response -->
+        {% if response %}
+        <div class="ai-response">
+            <strong>🥔 AskPOTATO says:</strong>
+            <div class="ai-text">{{ response }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- How it Works -->
+    <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
+        <h3 style="margin-bottom: 1rem;">How it works</h3>
+        <ol style="padding-left: 1.5rem; line-height: 2;">
+            <li><strong>Ask naturally</strong> - Type your question in plain English</li>
+            <li><strong>AI understands</strong> - Question is normalized to detect your intent</li>
+            <li><strong>Data retrieved</strong> - Relevant information is pulled from the database</li>
+            <li><strong>Answer generated</strong> - AI explains the data in a human-friendly way</li>
+        </ol>
+        <p style="margin-top: 1rem; padding: 1rem; background: white; border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-secondary);">
+            <strong>Note:</strong> AskPOTATO uses Ollama (local LLM) for privacy. Make sure Ollama is running on your system.
+        </p>
+    </div>
+</div>
+{% endblock %}
